@@ -17,12 +17,12 @@ Most endpoints require a JWT token. After logging in/registering, you will recei
         },
         servers: [
             {
-                url: 'http://localhost:3000',
-                description: 'Local Development Server'
+                url: 'https://ecocartback-production.up.railway.app',
+                description: 'Production Server (Railway)'
             },
             {
-                url: 'https://ecocart-backend-production.up.railway.app',
-                description: 'Production Server (Railway)'
+                url: 'http://localhost:3000',
+                description: 'Local Development Server'
             }
         ],
         components: {
