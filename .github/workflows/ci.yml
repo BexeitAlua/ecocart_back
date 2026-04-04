@@ -1,48 +1,16 @@
-name: EcoCart Backend CI/CD
+deploy:
+  needs: test
+  runs-on: ubuntu-latest
+  if: github.ref == 'refs/heads/main'
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
+    - name: Install Railway CLI
+      run: npm install -g @railway/cli
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run tests
-        env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          PORT: 3000
-        run: npm test
-
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Railway CLI
-        run: npm install -g @railway/cli
-
-      - name: Deploy to Railway
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up --service ecocart-backend --detach
+    - name: Deploy to Railway
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      run: railway up --service ${{ secrets.RAILWAY_SERVICE_ID }} --detach
