@@ -1,9 +1,11 @@
 const express = require('express');
 const {
     getItems, getItem, lookupBarcode, createItem, updateItem,
-    deleteItem, consumeItem, wasteItem, getExpiringItems, getItemsByCategory, getStats
+    deleteItem, consumeItem, wasteItem, getExpiringItems,
+    getItemsByCategory, getStats, createManyItems
 } = require('../controllers/itemController');
 const { protect } = require('../middleware/authMiddleware');
+const { scanReceipt } = require('../controllers/orcController');
 
 const router = express.Router();
 
@@ -166,7 +168,6 @@ router.get('/by-category', protect, getItemsByCategory);
  *                   example: Coca-Cola
  *                 brand:
  *                   type: string
- *                   example: Coca-Cola Company
  *                 imageUrl:
  *                   type: string
  *                 category:
@@ -237,6 +238,9 @@ router.get('/:id', protect, getItem);
  *               unit:
  *                 type: string
  *                 example: liter
+ *               price:
+ *                 type: number
+ *                 example: 500
  *               imageUrl:
  *                 type: string
  *                 description: Base64 image or URL
@@ -289,6 +293,8 @@ router.post('/', protect, createItem);
  *                 type: number
  *               unit:
  *                 type: string
+ *               price:
+ *                 type: number
  *     responses:
  *       200:
  *         description: Item updated
@@ -351,15 +357,23 @@ router.delete('/:id', protect, deleteItem);
  *           type: string
  *     responses:
  *       200:
- *         description: Item consumed and deleted. Returns updated eco points.
+ *         description: Item consumed. Returns ecoPoints, moneySaved, co2Saved.
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
+ *                 message:
+ *                   type: string
  *                 ecoPoints:
  *                   type: number
  *                   example: 160
+ *                 moneySaved:
+ *                   type: number
+ *                   example: 500
+ *                 co2Saved:
+ *                   type: number
+ *                   example: 1.5
  *       403:
  *         description: Access denied
  *       404:
@@ -383,7 +397,7 @@ router.post('/:id/consume', protect, consumeItem);
  *           type: string
  *     responses:
  *       200:
- *         description: Item removed as wasted
+ *         description: Item removed as wasted. Returns co2Wasted, moneyWasted.
  *         content:
  *           application/json:
  *             schema:
@@ -391,14 +405,110 @@ router.post('/:id/consume', protect, consumeItem);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Item removed
- *                 id:
- *                   type: string
+ *                 wasteCount:
+ *                   type: number
+ *                 ecoPoints:
+ *                   type: number
+ *                 co2Wasted:
+ *                   type: number
+ *                 moneyWasted:
+ *                   type: number
  *       403:
  *         description: Access denied
  *       404:
  *         description: Item not found
  */
 router.post('/:id/waste', protect, wasteItem);
+
+/**
+ * @swagger
+ * /api/items/scan-receipt:
+ *   post:
+ *     summary: Scan grocery receipt using OCR and extract food items
+ *     tags: [Items]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [imageBase64]
+ *             properties:
+ *               imageBase64:
+ *                 type: string
+ *                 description: Base64 encoded receipt image
+ *     responses:
+ *       200:
+ *         description: Extracted food items from receipt
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       name:
+ *                         type: string
+ *                       quantity:
+ *                         type: number
+ *                       unit:
+ *                         type: string
+ *                       category:
+ *                         type: string
+ *                       price:
+ *                         type: number
+ */
+router.post('/scan-receipt', protect, scanReceipt);
+
+/**
+ * @swagger
+ * /api/items/batch:
+ *   post:
+ *     summary: Add multiple items at once (from receipt scan)
+ *     tags: [Items]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [fridgeId, items]
+ *             properties:
+ *               fridgeId:
+ *                 type: string
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                     category:
+ *                       type: string
+ *                     quantity:
+ *                       type: number
+ *                     price:
+ *                       type: number
+ *     responses:
+ *       201:
+ *         description: Items batch created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 count:
+ *                   type: number
+ */
+router.post('/batch', protect, createManyItems);
 
 module.exports = router;

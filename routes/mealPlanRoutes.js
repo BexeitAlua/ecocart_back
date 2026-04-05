@@ -1,11 +1,10 @@
 const express = require('express');
-const {
-    getOrCreateMealPlan, updateMealSlot,
-    clearMealSlot, generateAiMealPlan, generateShoppingFromPlan
-} = require('../controllers/mealPlanController');
+const { getMealPlan, updateMeal, generateAIPlan } = require('../controllers/mealPlanController');
 const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
+
+router.use(protect);
 
 /**
  * @swagger
@@ -27,7 +26,7 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: string
- *         description: Start date of the week (Monday)
+ *         description: Start date of the week (Monday) in YYYY-MM-DD format
  *         example: '2026-03-24'
  *     responses:
  *       200:
@@ -41,7 +40,7 @@ const router = express.Router();
  *       403:
  *         description: Access denied
  */
-router.get('/', protect, getOrCreateMealPlan);
+router.get('/', getMealPlan);
 
 /**
  * @swagger
@@ -82,13 +81,13 @@ router.get('/', protect, getOrCreateMealPlan);
  *       500:
  *         description: AI generation failed
  */
-router.post('/generate-ai', protect, generateAiMealPlan);
+router.post('/generate', generateAIPlan);
 
 /**
  * @swagger
  * /api/meal-plan/{planId}/slot:
  *   put:
- *     summary: Update a specific meal slot
+ *     summary: Update a specific meal slot manually
  *     tags: [Meal Plan]
  *     security:
  *       - bearerAuth: []
@@ -133,86 +132,8 @@ router.post('/generate-ai', protect, generateAiMealPlan);
  *       404:
  *         description: Plan or day not found
  */
-router.put('/:planId/slot', protect, updateMealSlot);
+router.put('/meal', updateMeal);
 
-/**
- * @swagger
- * /api/meal-plan/{planId}/slot:
- *   delete:
- *     summary: Clear a specific meal slot
- *     tags: [Meal Plan]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: planId
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [date, mealType]
- *             properties:
- *               date:
- *                 type: string
- *                 example: '2026-03-24'
- *               mealType:
- *                 type: string
- *                 enum: [breakfast, lunch, dinner]
- *     responses:
- *       200:
- *         description: Meal slot cleared
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/MealPlan'
- *       403:
- *         description: Access denied
- *       404:
- *         description: Plan or day not found
- */
-router.delete('/:planId/slot', protect, clearMealSlot);
 
-/**
- * @swagger
- * /api/meal-plan/{planId}/generate-shopping:
- *   post:
- *     summary: Generate shopping list from meal plan ingredients
- *     description: |
- *       Compares meal plan ingredients with current fridge contents.
- *       Adds missing ingredients to the shopping list automatically.
- *     tags: [Meal Plan]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: planId
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Shopping list updated with missing ingredients
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Added 5 items to shopping list
- *                 addedCount:
- *                   type: number
- *                   example: 5
- *       403:
- *         description: Access denied
- *       404:
- *         description: Plan not found
- */
-router.post('/:planId/generate-shopping', protect, generateShoppingFromPlan);
 
 module.exports = router;
