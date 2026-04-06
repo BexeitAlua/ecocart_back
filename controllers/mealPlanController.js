@@ -185,72 +185,37 @@ const generateAIPlan = async (req, res) => {
         const dietary = user.dietaryPreferences || [];
         const dietText = dietary.length > 0 ? `CRITICAL: Do NOT use: ${dietary.join(', ')}.` : '';
 
-        let resultJSON;
+        const apiKey = process.env.OPENAI_API_KEY;
+        const openai = new OpenAI({ apiKey });
 
-        try {
-            const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-            const prompt = `
-                Create a 7-day meal plan (Monday to Sunday) for breakfast, lunch, and dinner.
-                Prioritize using these ingredients: ${availableIngredients || 'basic pantry items'}.
-                ${dietText}
-                
-                Return ONLY valid JSON matching this structure:
-                {
-                    "Monday": { 
-                        "breakfast": { "name": "...", "ingredients": ["item1", "item2"] },
-                        "lunch": { "name": "...", "ingredients": ["item1"] },
-                        "dinner": { "name": "...", "ingredients": ["item1", "item2", "item3"] }
-                    },
-                    "Tuesday": { ... },
-                    "Wednesday": { ... },
-                    "Thursday": { ... },
-                    "Friday": { ... },
-                    "Saturday": { ... },
-                    "Sunday": { ... }
+        const prompt = `
+            Create a 7-day meal plan (Monday to Sunday) for breakfast, lunch, and dinner.
+            Prioritize using these ingredients: ${availableIngredients || 'basic pantry items'}.
+            ${dietText}
+            
+            Return ONLY valid JSON matching this structure:
+            {
+                "Monday": { 
+                    "breakfast": { "name": "...", "ingredients": ["item1", "item2"] },
+                    "lunch": { "name": "...", "ingredients": ["item1"] },
+                    "dinner": { "name": "...", "ingredients": ["item1", "item2", "item3"] }
                 }
-                Keep ingredients array short (max 3 main items).
-            `;
+            }
+            Keep ingredients array short (max 3 main items).
+        `;
 
-            const completion = await openai.chat.completions.create({
-                messages: [
-                    { role: 'system', content: 'You are a professional meal planner. Output JSON only.' },
-                    { role: 'user', content: prompt }
-                ],
-                model: 'gpt-4o-mini',
-                response_format: { type: 'json_object' },
-                temperature: 0.7
-            });
+        const completion = await openai.chat.completions.create({
+            messages: [
+                { role: "system", content: "You are a professional meal planner. Output JSON only." },
+                { role: "user", content: prompt }
+            ],
+            model: "gpt-4o-mini",
+            response_format: { type: "json_object" },
+            temperature: 0.7,
+        });
 
-            resultJSON = JSON.parse(completion.choices[0].message.content);
-            logger.info(`AI meal plan generated for fridge ${fridgeId}`);
-        } catch (aiError) {
-            logger.error(`OpenAI error, using fallback: ${aiError.message}`);
-
-            const ingredientList = items.map(i => i.name);
-            const getIng = (i) => ingredientList[i % Math.max(ingredientList.length, 1)] || 'vegetables';
-
-            const mealTemplates = [
-                { breakfast: 'Omelette', lunch: 'Vegetable soup', dinner: 'Stir fry' },
-                { breakfast: 'Porridge', lunch: 'Salad', dinner: 'Pasta' },
-                { breakfast: 'Toast', lunch: 'Sandwich', dinner: 'Rice bowl' },
-                { breakfast: 'Yogurt with fruits', lunch: 'Noodle soup', dinner: 'Grilled chicken' },
-                { breakfast: 'Pancakes', lunch: 'Caesar salad', dinner: 'Vegetable curry' },
-                { breakfast: 'Scrambled eggs', lunch: 'Lentil soup', dinner: 'Baked fish' },
-                { breakfast: 'Smoothie bowl', lunch: 'Wrap', dinner: 'Fried rice' }
-            ];
-
-            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-            resultJSON = {};
-            days.forEach((day, i) => {
-                const t = mealTemplates[i];
-                const ing = getIng(i);
-                resultJSON[day] = {
-                    breakfast: { name: `${t.breakfast} with ${ing}`, ingredients: [ing, 'eggs'] },
-                    lunch: { name: `${t.lunch}`, ingredients: [getIng(i + 1), 'onion'] },
-                    dinner: { name: `${t.dinner} with ${ing}`, ingredients: [ing, getIng(i + 2), 'garlic'] }
-                };
-            });
-        }
+        const resultJSON = JSON.parse(completion.choices[0].message.content);
+        logger.info(`AI meal plan generated for fridge ${fridgeId}`);
 
         let mealPlan = await MealPlan.findOne({ fridgeId, weekStartDate });
         if (!mealPlan) mealPlan = new MealPlan({ fridgeId, weekStartDate });

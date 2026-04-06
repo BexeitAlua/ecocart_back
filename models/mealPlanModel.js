@@ -1,26 +1,40 @@
 const mongoose = require('mongoose');
 
-const mealSlotSchema = new mongoose.Schema({
-    recipeId: { type: String, default: null },
+const mealSchema = new mongoose.Schema({
     recipeName: { type: String, default: '' },
-    ingredients: [{ type: String }],
+    ingredients: { type: [String], default: [] },
     isAiGenerated: { type: Boolean, default: false },
-    notes: { type: String, default: '' }
-});
+    isCooked: { type: Boolean, default: false }
+}, { _id: false });
 
-const dayPlanSchema = new mongoose.Schema({
-    date: { type: String, required: true },
-    breakfast: { type: mealSlotSchema, default: () => ({}) },
-    lunch: { type: mealSlotSchema, default: () => ({}) },
-    dinner: { type: mealSlotSchema, default: () => ({}) }
-});
+const daySchema = new mongoose.Schema({
+    breakfast: { type: mealSchema, default: () => ({}) },
+    lunch: { type: mealSchema, default: () => ({}) },
+    dinner: { type: mealSchema, default: () => ({}) }
+}, { _id: false });
 
 const mealPlanSchema = new mongoose.Schema({
-    fridgeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Fridge', required: true },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    weekStart: { type: String, required: true },
-    days: [dayPlanSchema],
-    isAiGenerated: { type: Boolean, default: false }
+    fridgeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Fridge',
+        required: true
+    },
+    weekStartDate: {
+        type: String,
+        required: true
+    },
+    plan: {
+        Monday: { type: daySchema, default: () => ({}) },
+        Tuesday: { type: daySchema, default: () => ({}) },
+        Wednesday: { type: daySchema, default: () => ({}) },
+        Thursday: { type: daySchema, default: () => ({}) },
+        Friday: { type: daySchema, default: () => ({}) },
+        Saturday: { type: daySchema, default: () => ({}) },
+        Sunday: { type: daySchema, default: () => ({}) }
+    }
 }, { timestamps: true });
+
+
+mealPlanSchema.index({ fridgeId: 1, weekStartDate: 1 }, { unique: true });
 
 module.exports = mongoose.model('MealPlan', mealPlanSchema);
