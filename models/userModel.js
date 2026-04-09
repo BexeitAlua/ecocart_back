@@ -36,6 +36,15 @@ const userSchema = new mongoose.Schema({
         itemsWasted: { type: Number, default: 0 },
         totalMoneySaved: { type: Number, default: 0 },
         totalCo2Saved: { type: Number, default: 0 }
+    },
+    pointsHistory: [{
+        points: { type: Number },
+        reason: { type: String },
+        date: { type: Date, default: Date.now }
+    }],
+    city: {
+        type: String,
+        default: 'Almaty'
     }
 }, {
     timestamps: true
