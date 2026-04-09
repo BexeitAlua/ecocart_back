@@ -30,6 +30,12 @@ const userSchema = new mongoose.Schema({
     dietaryPreferences: {
         type: [String],
         default: []
+    },
+    efficiencyStats: {
+        itemsConsumed: { type: Number, default: 0 },
+        itemsWasted: { type: Number, default: 0 },
+        totalMoneySaved: { type: Number, default: 0 },
+        totalCo2Saved: { type: Number, default: 0 }
     }
 }, {
     timestamps: true

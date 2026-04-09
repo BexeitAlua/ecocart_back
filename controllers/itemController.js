@@ -479,6 +479,15 @@ const consumeItem = async (req, res) => {
         await checkFridgeAccess(item.fridgeId, req.user._id);
 
         const user = await User.findById(req.user._id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        if (!user.efficiencyStats) {
+            user.efficiencyStats = { itemsConsumed: 0, itemsWasted: 0, totalMoneySaved: 0, totalCo2Saved: 0 };
+        }
+
+        // ✅ Объявляем itemName и fridgeId ДО удаления item
+        const itemName = item.name;
+        const fridgeId = item.fridgeId.toString();
+
         const pointsEarned = 10;
         user.ecoPoints += pointsEarned;
         user.efficiencyStats.itemsConsumed += 1;
@@ -492,15 +501,12 @@ const consumeItem = async (req, res) => {
 
         user.pointsHistory.push({
             points: user.ecoPoints,
-            reason: `Consumed ${item.name}`,
+            reason: `Consumed ${itemName}`,
             date: new Date()
         });
 
         await user.save();
-
-        const fridgeId = item.fridgeId.toString();
-        const itemName = item.name;
-
+        await item.deleteOne();
 
         emitToFridge(fridgeId, 'item:consumed', {
             itemName,
@@ -508,8 +514,6 @@ const consumeItem = async (req, res) => {
             ecoPoints: user.ecoPoints,
             message: `${user.name} consumed ${itemName} 🌱`
         });
-
-        await item.deleteOne();
 
         logger.info(`Item consumed: ${itemName} by user ${req.user._id}`);
         res.json({ message: 'Item consumed', ecoPoints: user.ecoPoints, moneySaved, co2Saved });
