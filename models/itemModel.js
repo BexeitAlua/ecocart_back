@@ -1,22 +1,28 @@
 const mongoose = require('mongoose');
 
 const itemSchema = new mongoose.Schema({
-
+    // 🔄 CHANGED: Use fridgeId instead of userId
     fridgeId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Fridge',
         required: [true, 'Fridge ID is required']
     },
 
+    // Product Info
     name: {
         type: String,
         required: [true, 'Product name is required'],
         trim: true
     },
+
+    // 🆕 新增：价格字段 (默认 0，单位 KZT)
+    price: { type: Number, default: 0 },
+
     barcode: { type: String },
     brand: { type: String, trim: true },
     imageUrl: { type: String },
 
+    // Dates
     productionDate: { type: Date },
     purchaseDate: { type: Date, default: Date.now },
     expiryDate: {
@@ -30,7 +36,7 @@ const itemSchema = new mongoose.Schema({
     category: {
         type: String,
         enum: {
-            values: ['Dairy', 'Fruit', 'Vegetables', 'Meat', 'Beverages', 'Snacks', 'Other'],
+            values: ['Dairy', 'Fruit', 'Vegetables', 'Meat', 'Grains', 'Beverages', 'Snacks', 'Seafood', 'Other'],
             message: '{VALUE} is not a valid category'
         },
         default: 'Other'
