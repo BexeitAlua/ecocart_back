@@ -1,14 +1,13 @@
 const mongoose = require('mongoose');
 
 const itemSchema = new mongoose.Schema({
-    // 🔄 CHANGED: Use fridgeId instead of userId
+
     fridgeId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Fridge',
         required: [true, 'Fridge ID is required']
     },
 
-    // Product Info
     name: {
         type: String,
         required: [true, 'Product name is required'],
@@ -18,7 +17,6 @@ const itemSchema = new mongoose.Schema({
     brand: { type: String, trim: true },
     imageUrl: { type: String },
 
-    // Dates
     productionDate: { type: Date },
     purchaseDate: { type: Date, default: Date.now },
     expiryDate: {

@@ -498,16 +498,7 @@ const consumeItem = async (req, res) => {
 
         await user.save();
 
-        const fridgeId = item.fridgeId.toString();
-        const itemName = item.name;
         await item.deleteOne();
-
-        emitToFridge(fridgeId, 'item:consumed', {
-            itemName,
-            consumedBy: req.user._id,
-            ecoPoints: user.ecoPoints,
-            message: `${user.name} consumed ${itemName} 🌱`
-        });
 
         logger.info(`Item consumed: ${itemName} by user ${req.user._id}`);
         res.json({ message: 'Item consumed', ecoPoints: user.ecoPoints, moneySaved, co2Saved });
