@@ -478,6 +478,8 @@ const consumeItem = async (req, res) => {
         if (!item) return res.status(404).json({ message: 'Item not found' });
         await checkFridgeAccess(item.fridgeId, req.user._id);
 
+        const itemName = item.name;
+
         const user = await User.findById(req.user._id);
         const pointsEarned = 10;
         user.ecoPoints += pointsEarned;
@@ -492,15 +494,14 @@ const consumeItem = async (req, res) => {
 
         user.pointsHistory.push({
             points: user.ecoPoints,
-            reason: `Consumed ${item.name}`,
+            reason: `Consumed ${itemName}`,
             date: new Date()
         });
 
         await user.save();
-
         await item.deleteOne();
 
-        logger.info(`Item consumed: ${itemName} by user ${req.user._id}`);
+        logger.info(`Item consumed: ${itemName} by user ${req.user._id}`); // ✅ работает
         res.json({ message: 'Item consumed', ecoPoints: user.ecoPoints, moneySaved, co2Saved });
     } catch (error) {
         logger.error(`consumeItem error: ${error.message}`);
