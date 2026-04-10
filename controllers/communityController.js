@@ -1,7 +1,8 @@
 const CommunityPost = require('../models/communityModel');
 const User = require('../models/userModel');
 const cloudinary = require('../config/cloudinary');
-const sendPushNotification = require('../utils/pushSender'); // 引入
+const sendPushNotification = require('../utils/pushSender');
+const Charity = require('../models/charityModel');
 
 // 🆕 Helper: Generate approximate coordinates (add random offset ~500m)
 const approximateCoordinates = (lat, lng) => {

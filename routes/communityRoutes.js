@@ -8,7 +8,8 @@ const {
     createReservation,
     updateReservation,
     sendMessage,
-    getMessages
+    getMessages,
+    getCharities
 } = require('../controllers/communityController');
 const { protect } = require('../middleware/authMiddleware');
 
