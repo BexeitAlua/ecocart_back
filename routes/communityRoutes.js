@@ -108,6 +108,8 @@ router.get('/', getPosts);
  */
 router.post('/', createPost);
 
+router.get('/charities', getCharities);
+
 /**
  * @swagger
  * /api/community/{id}:

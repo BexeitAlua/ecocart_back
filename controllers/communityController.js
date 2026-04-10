@@ -12,7 +12,6 @@ const approximateCoordinates = (lat, lng) => {
     };
 };
 
-// GET /api/community - with distance filtering
 const getPosts = async (req, res) => {
     try {
         const { city, lat, lng, radius = 10 } = req.query; // radius in km
@@ -188,7 +187,7 @@ const createPost = async (req, res) => {
     }
 };
 
-// 🆕 POST /api/community/:id/reserve
+// POST /api/community/:id/reserve
 const createReservation = async (req, res) => {
     try {
         const { message, pickupTime } = req.body;
@@ -291,7 +290,7 @@ const updateReservation = async (req, res) => {
     }
 };
 
-// 🆕 POST /api/community/:id/message
+// POST /api/community/:id/message
 const sendMessage = async (req, res) => {
     try {
         const { message } = req.body;
@@ -387,6 +386,21 @@ const deletePost = async (req, res) => {
         res.json({ message: 'Post deleted', id: req.params.id });
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+};
+const getCharities = async (req, res) => {
+    try {
+
+        const charities = await Charity.find({}).sort({ verified: -1, createdAt: -1 });
+
+        if (charities.length === 0) {
+            console.log("No charities found in DB, please run seed script.");
+        }
+
+        res.json(charities);
+    } catch (error) {
+        console.error("Error fetching charities:", error);
+        res.status(500).json({ message: "Failed to load charities" });
     }
 };
 
