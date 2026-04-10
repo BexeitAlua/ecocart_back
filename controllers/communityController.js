@@ -166,19 +166,17 @@ const createPost = async (req, res) => {
 
         await post.populate('postedBy', 'name');
 
-        // 发送“新帖通知”给其他用户 👇👇👇
-        // 在生产环境中，这里应该只发给"同城"或"附近"的用户
-        // 但为了演示，我们发给所有其他用户 (排除自己)
+
         const otherUsers = await User.find({ _id: { $ne: req.user._id } }, '_id');
 
         otherUsers.forEach(async (user) => {
             await sendPushNotification(
                 user._id,
-                `New Food in ${city}! 🥗`, // 标题: New Food in Almaty!
-                `${req.user.name} is sharing "${name}". Check it out before it's gone!`, // 内容
+                `New Food in ${city}! 🥗`,
+                `${req.user.name} is sharing "${name}". Check it out before it's gone!`,
                 {
-                    type: 'community', // 类型
-                    postId: post._id   // 关键数据：用于前端跳转
+                    type: 'community',
+                    postId: post._id
                 }
             );
         });
@@ -414,5 +412,6 @@ module.exports = {
     createReservation,
     updateReservation,
     sendMessage,
-    getMessages
+    getMessages,
+    getCharities
 };
