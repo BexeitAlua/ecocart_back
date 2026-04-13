@@ -56,7 +56,7 @@ describe('Auth API', () => {
         it('should login with correct credentials', async () => {
             const res = await request(app)
                 .post('/api/auth/login')
-                .send({ email: testUser.email, password: testUser.password });
+                .send({ username: testUser.name, password: testUser.password });
             expect(res.status).toBe(200);
             expect(res.body).toHaveProperty('token');
         }, 30000);
@@ -64,14 +64,14 @@ describe('Auth API', () => {
         it('should not login with wrong password', async () => {
             const res = await request(app)
                 .post('/api/auth/login')
-                .send({ email: testUser.email, password: 'wrongpassword' });
+                .send({ username: testUser.name, password: 'wrongpassword' });
             expect(res.status).toBe(401);
         }, 30000);
 
-        it('should not login with non-existent email', async () => {
+        it('should not login with non-existent username', async () => {
             const res = await request(app)
                 .post('/api/auth/login')
-                .send({ email: 'notexist@test.com', password: 'password123' });
+                .send({ username: 'nonexistentuser', password: 'password123' });
             expect(res.status).toBe(401);
         }, 30000);
     });
