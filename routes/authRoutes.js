@@ -59,9 +59,9 @@ router.post('/signup', authLimiter, validate(registerSchema), registerUser);
  *             type: object
  *             required: [email, password]
  *             properties:
- *               email:
+ *               username:
  *                 type: string
- *                 example: jessica@ecocart.app
+ *                 example: alllukaaa
  *               password:
  *                 type: string
  *                 example: password123
