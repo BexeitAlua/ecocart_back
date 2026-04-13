@@ -24,6 +24,7 @@ const cookbookRoutes = require('./routes/cookbookRoutes');
 const mealPlanRoutes = require('./routes/mealPlanRoutes');
 
 const app = express();
+app.set('trust proxy', 1);
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
 
