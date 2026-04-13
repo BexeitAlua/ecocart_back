@@ -7,8 +7,9 @@ const charitySchema = new mongoose.Schema({
         trim: true
     },
     description: {
-        type: String,
-        required: [true, 'Please add a description']
+        en: { type: String, required: true },
+        ru: { type: String, required: true },
+        kz: { type: String, required: true }
     },
     city: {
         type: String,
@@ -32,7 +33,7 @@ const charitySchema = new mongoose.Schema({
         default: ''
     },
     needs: {
-        type: [String], // e.g., ["Canned Food", "Rice", "Pasta"]
+        type: [String],
         default: []
     },
     verified: {

@@ -12,7 +12,6 @@ const shoppingItemSchema = new mongoose.Schema({
         trim: true
     },
 
-    // 🆕 Duplicate detection fields
     similarInFridge: [{
         itemId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -25,7 +24,7 @@ const shoppingItemSchema = new mongoose.Schema({
     }],
     ignoreDuplicate: {
         type: Boolean,
-        default: false // User can choose to ignore the warning
+        default: false
     },
 
     isCompleted: {

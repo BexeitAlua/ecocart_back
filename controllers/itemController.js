@@ -26,24 +26,6 @@ const checkFridgeAccess = async (fridgeId, userId) => {
     return fridge;
 };
 
-/**
- * @swagger
- * /api/items:
- *   get:
- *     summary: Get all items in a fridge
- *     tags: [Items]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: fridgeId
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: List of fridge items
- */
 const getItems = async (req, res) => {
     try {
         const { fridgeId } = req.query;
@@ -60,24 +42,6 @@ const getItems = async (req, res) => {
     }
 };
 
-/**
- * @swagger
- * /api/items/{id}:
- *   get:
- *     summary: Get single item
- *     tags: [Items]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Item data
- */
 const getItem = async (req, res) => {
     try {
         const item = await FridgeItem.findById(req.params.id).populate('addedBy', 'name');
@@ -105,26 +69,6 @@ const categorizeProduct = (tags) => {
     return 'Other';
 };
 
-/**
- * @swagger
- * /api/items/barcode/{barcode}:
- *   get:
- *     summary: Lookup product by barcode
- *     tags: [Items]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: barcode
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Product info from OpenFoodFacts
- *       404:
- *         description: Product not found
- */
 const lookupBarcode = async (req, res) => {
     try {
         const { barcode } = req.params;
@@ -145,41 +89,7 @@ const lookupBarcode = async (req, res) => {
     }
 };
 
-/**
- * @swagger
- * /api/items:
- *   post:
- *     summary: Add new item to fridge
- *     tags: [Items]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [fridgeId, name, expiryDate]
- *             properties:
- *               fridgeId:
- *                 type: string
- *               name:
- *                 type: string
- *               expiryDate:
- *                 type: string
- *                 format: date
- *               category:
- *                 type: string
- *               quantity:
- *                 type: number
- *               unit:
- *                 type: string
- *               price:
- *                 type: number
- *     responses:
- *       201:
- *         description: Item created
- */
+
 const createItem = async (req, res) => {
     try {
         let { fridgeId, imageUrl, price, ...itemData } = req.body;
@@ -228,24 +138,6 @@ const createItem = async (req, res) => {
     }
 };
 
-/**
- * @swagger
- * /api/items/{id}:
- *   put:
- *     summary: Update item
- *     tags: [Items]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Item updated
- */
 const updateItem = async (req, res) => {
     try {
         const item = await FridgeItem.findById(req.params.id);
@@ -286,24 +178,6 @@ const updateItem = async (req, res) => {
     }
 };
 
-/**
- * @swagger
- * /api/items/{id}:
- *   delete:
- *     summary: Delete item
- *     tags: [Items]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Item deleted
- */
 const deleteItem = async (req, res) => {
     try {
         const item = await FridgeItem.findById(req.params.id);
@@ -328,29 +202,6 @@ const deleteItem = async (req, res) => {
     }
 };
 
-/**
- * @swagger
- * /api/items/expiring:
- *   get:
- *     summary: Get expiring items
- *     tags: [Items]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: fridgeId
- *         required: true
- *         schema:
- *           type: string
- *       - in: query
- *         name: days
- *         schema:
- *           type: integer
- *           default: 3
- *     responses:
- *       200:
- *         description: List of expiring items
- */
 const getExpiringItems = async (req, res) => {
     try {
         const { fridgeId } = req.query;
@@ -374,24 +225,6 @@ const getExpiringItems = async (req, res) => {
     }
 };
 
-/**
- * @swagger
- * /api/items/by-category:
- *   get:
- *     summary: Get items grouped by category
- *     tags: [Items]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: fridgeId
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Items grouped by category
- */
 const getItemsByCategory = async (req, res) => {
     try {
         const { fridgeId } = req.query;
@@ -414,24 +247,6 @@ const getItemsByCategory = async (req, res) => {
     }
 };
 
-/**
- * @swagger
- * /api/items/stats:
- *   get:
- *     summary: Get fridge statistics
- *     tags: [Items]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: fridgeId
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Stats with total, fresh, expiring, expired counts
- */
 const getStats = async (req, res) => {
     try {
         const { fridgeId } = req.query;
@@ -454,24 +269,7 @@ const getStats = async (req, res) => {
     }
 };
 
-/**
- * @swagger
- * /api/items/{id}/consume:
- *   post:
- *     summary: Mark item as consumed (+10 Eco Points)
- *     tags: [Items]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Item consumed, returns ecoPoints, moneySaved, co2Saved
- */
+
 const consumeItem = async (req, res) => {
     try {
         const item = await FridgeItem.findById(req.params.id);
@@ -484,7 +282,6 @@ const consumeItem = async (req, res) => {
             user.efficiencyStats = { itemsConsumed: 0, itemsWasted: 0, totalMoneySaved: 0, totalCo2Saved: 0 };
         }
 
-        // ✅ Объявляем itemName и fridgeId ДО удаления item
         const itemName = item.name;
         const fridgeId = item.fridgeId.toString();
 

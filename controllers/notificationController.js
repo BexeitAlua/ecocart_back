@@ -1,6 +1,5 @@
 const Notification = require('../models/notificationModel');
 
-// 获取我的通知
 const getNotifications = async (req, res) => {
     try {
         const notifications = await Notification.find({ userId: req.user._id })
@@ -11,7 +10,6 @@ const getNotifications = async (req, res) => {
     }
 };
 
-// 标记单条已读
 const markAsRead = async (req, res) => {
     try {
         await Notification.findByIdAndUpdate(req.params.id, { isRead: true });
@@ -21,7 +19,6 @@ const markAsRead = async (req, res) => {
     }
 };
 
-// 标记全部已读
 const markAllAsRead = async (req, res) => {
     try {
         await Notification.updateMany(
@@ -42,7 +39,6 @@ const deleteNotification = async (req, res) => {
             return res.status(404).json({ message: 'Notification not found' });
         }
 
-        // 验证权限：只能删自己的
         if (notification.userId.toString() !== req.user._id.toString()) {
             return res.status(403).json({ message: 'Not authorized' });
         }
@@ -54,7 +50,6 @@ const deleteNotification = async (req, res) => {
     }
 };
 
-// 🆕 清空所有通知
 const deleteAllNotifications = async (req, res) => {
     try {
         await Notification.deleteMany({ userId: req.user._id });

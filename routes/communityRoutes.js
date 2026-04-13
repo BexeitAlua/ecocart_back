@@ -109,6 +109,60 @@ router.get('/', getPosts);
  */
 router.post('/', createPost);
 
+/**
+ * @swagger
+ * /api/community/charities:
+ *   get:
+ *     summary: Get all charity organizations
+ *     description: Returns a list of verified charity organizations that accept food donations, sorted by verification status and creation date.
+ *     tags: [Community]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of charity organizations
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                     example: Almaty Food Bank
+ *                   description:
+ *                     type: string
+ *                     example: We distribute food to families in need
+ *                   city:
+ *                     type: string
+ *                     enum: [All, Almaty, Astana, Shymkent, Karaganda, Aktau, Atyrau, Other]
+ *                     example: Almaty
+ *                   address:
+ *                     type: string
+ *                     example: 123 Abai Avenue
+ *                   contact:
+ *                     type: string
+ *                     example: '+7 777 123 4567'
+ *                   website:
+ *                     type: string
+ *                     example: https://almatyfoodbank.kz
+ *                   imageUrl:
+ *                     type: string
+ *                   needs:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                     example: [Canned Food, Rice, Pasta]
+ *                   verified:
+ *                     type: boolean
+ *                     example: true
+ *       500:
+ *         description: Failed to load charities
+ */
+
 router.get('/charities', getCharities);
 
 /**

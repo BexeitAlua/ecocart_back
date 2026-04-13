@@ -15,7 +15,6 @@ const fridgeSchema = new mongoose.Schema({
         required: true
     },
 
-    // Enhanced members structure with roles
     members: [{
         userId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -36,10 +35,9 @@ const fridgeSchema = new mongoose.Schema({
     inviteCode: {
         type: String,
         unique: true,
-        sparse: true // Allows multiple null values
+        sparse: true
     },
 
-    // Settings
     settings: {
         allowMembersToDelete: {
             type: Boolean,

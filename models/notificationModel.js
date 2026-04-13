@@ -13,7 +13,7 @@ const notificationSchema = new mongoose.Schema({
         enum: ['system', 'expiry', 'community', 'message', 'report'],
         default: 'system'
     },
-    data: { type: Object }, // 存额外数据，比如 postId，方便跳转
+    data: { type: Object },
     isRead: { type: Boolean, default: false }
 }, {
     timestamps: true

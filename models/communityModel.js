@@ -16,37 +16,35 @@ const communityPostSchema = new mongoose.Schema({
         required: [true, 'Please add description']
     },
 
-    // 🆕 Enhanced Location System
     location: {
-        // Public info (always visible)
         city: {
             type: String,
             required: true,
             enum: ['Almaty', 'Astana', 'Shymkent', 'Karaganda', 'Aktau', 'Atyrau', 'Other']
         },
-        district: String, // e.g., "Medeu District"
+        district: String,
         publicDescription: {
             type: String,
-            required: true // e.g., "Near Green Bazaar"
+            required: true
         },
 
-        // Approximate coordinates (always visible - 500m accuracy)
+
         approximateCoords: {
             latitude: { type: Number, required: true },
             longitude: { type: Number, required: true }
         },
 
-        // Private info (only visible after reservation confirmed)
-        exactAddress: String, // Hidden until reservation
+
+        exactAddress: String,
         exactCoords: {
             latitude: Number,
             longitude: Number
         },
 
-        // Privacy settings
+
         shareExactLocation: {
             type: Boolean,
-            default: false // Don't share exact location by default
+            default: false
         }
     },
 
@@ -64,7 +62,7 @@ const communityPostSchema = new mongoose.Schema({
 
     tags: [String],
 
-    // 🆕 Reservation System
+
     reservations: [{
         userId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -83,7 +81,7 @@ const communityPostSchema = new mongoose.Schema({
         }
     }],
 
-    // 🆕 In-app Messages
+
     messages: [{
         from: {
             type: mongoose.Schema.Types.ObjectId,
@@ -96,7 +94,6 @@ const communityPostSchema = new mongoose.Schema({
         }
     }],
 
-    // Track views and interest
     viewCount: {
         type: Number,
         default: 0
@@ -105,7 +102,6 @@ const communityPostSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// 🆕 Helper method to get public location (with privacy)
 communityPostSchema.methods.getPublicLocation = function () {
     return {
         city: this.location.city,
@@ -115,14 +111,11 @@ communityPostSchema.methods.getPublicLocation = function () {
     };
 };
 
-// 🆕 Helper method to check if user can see exact location
 communityPostSchema.methods.canSeeExactLocation = function (userId) {
-    // Owner can always see
     if (this.postedBy.toString() === userId.toString()) {
         return true;
     }
 
-    // Check if user has confirmed reservation
     const confirmedReservation = this.reservations.find(
         r => r.userId.toString() === userId.toString() && r.status === 'confirmed'
     );
@@ -130,7 +123,7 @@ communityPostSchema.methods.canSeeExactLocation = function (userId) {
     return !!confirmedReservation;
 };
 
-// 🆕 Calculate distance (in km)
+
 communityPostSchema.statics.calculateDistance = function (lat1, lon1, lat2, lon2) {
     const R = 6371; // Earth's radius in km
     const dLat = (lat2 - lat1) * Math.PI / 180;

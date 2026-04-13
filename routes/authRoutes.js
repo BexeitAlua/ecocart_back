@@ -1,9 +1,10 @@
 const express = require('express');
-const { registerUser, loginUser, getMe, updatePushToken, updateProfile, getLeaderboard } = require('../controllers/authController');
+const { registerUser, loginUser, getMe, updatePushToken, updateProfile, getLeaderboard,googleLogin,resetPassword,verifyOTP,forgotPassword } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 const validate = require('../middleware/validate');
 const { authLimiter } = require('../middleware/rateLimiter');
 const { registerSchema, loginSchema } = require('../validators/authValidator');
+
 
 const router = express.Router();
 
@@ -180,5 +181,171 @@ router.put('/profile', protect, updateProfile);
  *                   type: number
  */
 router.get('/leaderboard', protect, getLeaderboard);
+
+/**
+ * @swagger
+ * /api/auth/google:
+ *   post:
+ *     summary: Sign in or register with Google OAuth
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - idToken
+ *             properties:
+ *               idToken:
+ *                 type: string
+ *                 description: Google ID token obtained from the client-side Google Sign-In SDK
+ *                 example: "eyJhbGciOiJSUzI1NiIsImtpZCI6..."
+ *     responses:
+ *       200:
+ *         description: Successfully authenticated. Returns user data and JWT token.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 ecoPoints:
+ *                   type: number
+ *                 token:
+ *                   type: string
+ *       400:
+ *         description: Google ID Token is required
+ *       401:
+ *         description: Invalid Google Token
+ */
+router.post('/google', googleLogin);
+
+/**
+ * @swagger
+ * /api/auth/forgot-password:
+ *   post:
+ *     summary: Request a password reset OTP via email
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "user@example.com"
+ *     responses:
+ *       200:
+ *         description: OTP sent to the user's email address
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Reset code sent to your email."
+ *       404:
+ *         description: User with this email does not exist
+ *       500:
+ *         description: Server error
+ */
+router.post('/forgot-password', forgotPassword);
+
+/**
+ * @swagger
+ * /api/auth/verify-otp:
+ *   post:
+ *     summary: Verify the 4-digit OTP for password reset
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - otp
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "user@example.com"
+ *               otp:
+ *                 type: string
+ *                 minLength: 4
+ *                 maxLength: 4
+ *                 example: "4823"
+ *     responses:
+ *       200:
+ *         description: OTP is valid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "OTP verified successfully"
+ *       400:
+ *         description: Invalid request, OTP has expired, or OTP is incorrect
+ *       500:
+ *         description: Server error
+ */
+router.post('/verify-otp', verifyOTP);
+
+/**
+ * @swagger
+ * /api/auth/reset-password:
+ *   post:
+ *     summary: Set a new password after OTP verification
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - newPassword
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "user@example.com"
+ *               newPassword:
+ *                 type: string
+ *                 minLength: 6
+ *                 example: "newSecurePassword123"
+ *     responses:
+ *       200:
+ *         description: Password successfully reset
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Password reset successful! You can now log in."
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.post('/reset-password', resetPassword);
 
 module.exports = router;

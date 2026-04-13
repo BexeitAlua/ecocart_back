@@ -1,28 +1,24 @@
 const mongoose = require('mongoose');
 
 const itemSchema = new mongoose.Schema({
-    // 🔄 CHANGED: Use fridgeId instead of userId
     fridgeId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Fridge',
         required: [true, 'Fridge ID is required']
     },
 
-    // Product Info
     name: {
         type: String,
         required: [true, 'Product name is required'],
         trim: true
     },
 
-    // 🆕 新增：价格字段 (默认 0，单位 KZT)
     price: { type: Number, default: 0 },
 
     barcode: { type: String },
     brand: { type: String, trim: true },
     imageUrl: { type: String },
 
-    // Dates
     productionDate: { type: Date },
     purchaseDate: { type: Date, default: Date.now },
     expiryDate: {
@@ -30,7 +26,6 @@ const itemSchema = new mongoose.Schema({
         required: [true, 'Expiry date is required']
     },
 
-    // Quantity & Category
     quantity: { type: Number, default: 1, min: 1 },
     unit: { type: String, default: 'piece', trim: true },
     category: {
@@ -42,23 +37,19 @@ const itemSchema = new mongoose.Schema({
         default: 'Other'
     },
 
-    // Status (calculated based on expiry)
     status: {
         type: String,
         enum: ['fresh', 'expiring', 'expired'],
         default: 'fresh'
     },
 
-    // Optional
     notes: { type: String },
 
-    // Track who added this item (useful for shared fridges)
     addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, {
     timestamps: true
 });
 
-// Method to calculate status based on expiry date
 itemSchema.methods.calculateStatus = function () {
     const now = new Date();
     const expiry = new Date(this.expiryDate);
@@ -75,7 +66,6 @@ itemSchema.methods.calculateStatus = function () {
     return this.status;
 };
 
-// Auto-calculate status before saving
 itemSchema.pre('save', function () {
     this.calculateStatus();
 });

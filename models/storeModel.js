@@ -24,7 +24,6 @@ const storeSchema = new mongoose.Schema({
         }
     },
 
-    // Product availability and pricing
     products: [{
         name: String,
         category: String,
@@ -36,7 +35,6 @@ const storeSchema = new mongoose.Schema({
         }
     }],
 
-    // User ratings
     ratings: [{
         userId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -59,7 +57,7 @@ const storeSchema = new mongoose.Schema({
         default: 0
     },
 
-    // Store characteristics
+
     openHours: String,
     hasParking: Boolean,
     acceptsCards: Boolean
@@ -67,7 +65,6 @@ const storeSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Calculate average rating
 storeSchema.methods.updateAverageRating = function () {
     if (this.ratings.length === 0) {
         this.averageRating = 0;

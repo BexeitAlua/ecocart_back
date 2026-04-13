@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please add a name'],
         trim: true,
+        unique: true,
     },
     email: {
         type: String,
@@ -26,26 +27,32 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    pushToken: { type: String },
-    dietaryPreferences: {
-        type: [String],
-        default: []
+    city: {
+        type: String,
+        default: 'Almaty',
+        enum: ['Almaty', 'Astana', 'Shymkent', 'Karaganda', 'Aktobe', 'Aktau', 'Atyrau', 'Kostanay', 'Pavlodar', 'Taraz', 'Semey', 'Kyzylorda', 'Zhezkazgan', 'Petropavl', 'Other']
     },
+    pointsHistory: [{
+        points: Number,
+        reason: String,
+        date: { type: Date, default: Date.now }
+    }],
+
     efficiencyStats: {
         itemsConsumed: { type: Number, default: 0 },
         itemsWasted: { type: Number, default: 0 },
         totalMoneySaved: { type: Number, default: 0 },
+
         totalCo2Saved: { type: Number, default: 0 }
     },
-    pointsHistory: [{
-        points: { type: Number },
-        reason: { type: String },
-        date: { type: Date, default: Date.now }
-    }],
-    city: {
-        type: String,
-        default: 'Almaty'
-    }
+    pushToken: { type: String },
+    language: { type: String, enum: ['EN', 'RU', 'KZ'], default: 'EN' },
+    dietaryPreferences: {
+        type: [String],
+        default: []
+    },
+    resetPasswordOTP: { type: String },
+    resetPasswordExpires: { type: Date }
 }, {
     timestamps: true
 });
