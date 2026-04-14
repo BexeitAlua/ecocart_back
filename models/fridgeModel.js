@@ -57,7 +57,6 @@ const fridgeSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Generate unique invite code
 fridgeSchema.methods.generateInviteCode = function () {
     this.inviteCode = crypto.randomBytes(4).toString('hex').toUpperCase();
     return this.inviteCode;

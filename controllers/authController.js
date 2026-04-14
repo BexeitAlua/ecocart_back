@@ -268,9 +268,18 @@ const forgotPassword = async (req, res) => {
         }
 
         const otp = Math.floor(1000 + Math.random() * 9000).toString();
-        user.resetPasswordOTP = await bcrypt.hash(otp, 10);
-        user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
-        await user.save();
+        const hashedOTP = await bcrypt.hash(otp, 10);
+        const expireTime = Date.now() + 10 * 60 * 1000;
+
+        await User.updateOne(
+            { _id: user._id },
+            {
+                $set: {
+                    resetPasswordOTP: hashedOTP,
+                    resetPasswordExpires: expireTime
+                }
+            }
+        );
 
         logger.info(`forgotPassword: OTP generated for ${email}`);
 
@@ -355,10 +364,14 @@ const resetPassword = async (req, res) => {
 
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(newPassword, salt);
-        user.resetPasswordOTP = undefined;
-        user.resetPasswordExpires = undefined;
 
-        await user.save();
+        await User.updateOne(
+            { _id: user._id },
+            {
+                $set: { password: hashedPassword },
+                $unset: { resetPasswordOTP: "", resetPasswordExpires: "" }
+            }
+        );
         logger.info(`resetPassword: password reset successful for ${email}`);
         res.json({ message: 'Password reset successful! You can now log in.' });
     } catch (error) {
